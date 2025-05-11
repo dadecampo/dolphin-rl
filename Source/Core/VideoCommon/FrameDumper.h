@@ -37,7 +37,7 @@ public:
 
   bool IsFrameDumping() const;
   int GetRequiredResolutionLeastCommonMultiple() const;
-
+  bool DumpFrameToPNG(const FrameData& frame, const std::string& file_name);
   void DoState(PointerWrap& p);
 
 private:

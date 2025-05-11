@@ -22,7 +22,7 @@
 // The video encoder needs the image to be a multiple of x samples.
 static constexpr int VIDEO_ENCODER_LCM = 4;
 
-static bool DumpFrameToPNG(const FrameData& frame, const std::string& file_name)
+bool FrameDumper::DumpFrameToPNG(const FrameData& frame, const std::string& file_name)
 {
   return Common::ConvertRGBAToRGBAndSavePNG(file_name, frame.data, frame.width, frame.height,
                                             frame.stride,
@@ -243,8 +243,7 @@ void FrameDumper::FrameDumpThreadFunc()
 
       if (wants_screenshot)
       {
-        if (DumpFrameToPNG(frame, m_screenshot_name))
-          OSD::AddMessage("Screenshot saved to " + m_screenshot_name);
+        DumpFrameToPNG(frame, m_screenshot_name);
 
         // Reset settings
         m_screenshot_name.clear();

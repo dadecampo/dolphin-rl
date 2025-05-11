@@ -74,6 +74,7 @@ VideoBackendBase* g_video_backend = nullptr;
 
 #ifdef _WIN32
 #include <windows.h>
+#include <API/Pipes/NamedPipeListener.h>
 
 // Nvidia drivers >= v302 will check if the application exports a global
 // variable named NvOptimusEnablement to know if it should run the app in high
@@ -132,6 +133,20 @@ void VideoBackendBase::Video_OutputXFB(u32 xfb_addr, u32 fb_width, u32 fb_stride
     else
     {
       AsyncRequests::GetInstance()->PushEvent(e, false);
+      if (g_named_pipe_listener->IsRunning())
+      {
+        while (true)
+        {
+          if (auto cmd = g_named_pipe_listener->GetNextCommand())
+          {
+            std::cout << "Ricevuto: " << *cmd << "\n";
+            // qui puoi reagire a comandi globali
+            break;
+          }
+          std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+      }
+      Core::SaveScreenShot();
     }
   }
 }

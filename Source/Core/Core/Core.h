@@ -198,4 +198,6 @@ void UpdateInputGate(bool require_focus, bool require_full_focus = false);
 
 void UpdateTitle(Core::System& system);
 
+void SaveScreenShot();
+
 }  // namespace Core

@@ -39,8 +39,8 @@
 #include "Common/Timer.h"
 #include "Common/Version.h"
 
-#include "Core/AchievementManager.h"
 #include "Core/API/Events.h"
+#include "Core/AchievementManager.h"
 #include "Core/Boot/Boot.h"
 #include "Core/BootManager.h"
 #include "Core/CPUThreadConfigCallback.h"
@@ -96,6 +96,7 @@
 #include "VideoCommon/Present.h"
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoEvents.h"
+#include <API/Pipes/NamedPipeListener.h>
 
 namespace Core
 {
@@ -589,6 +590,10 @@ static void EmuThread(Core::System& system, std::unique_ptr<BootParameters> boot
     PanicAlertFmt("Failed to initialize video backend!");
     return;
   }
+
+  g_named_pipe_listener = std::make_unique<NamedPipeListener>("MyPipe");
+  g_named_pipe_listener->Start();
+
   Common::ScopeGuard video_guard{[] {
     // Clear on screen messages that haven't expired
     OSD::ClearMessages();
@@ -617,7 +622,7 @@ static void EmuThread(Core::System& system, std::unique_ptr<BootParameters> boot
   system.GetPowerPC().SetMode(PowerPC::CoreMode::Interpreter);
 
   // Determine the CPU thread function
-  void (*cpuThreadFunc)(Core::System & system, const std::optional<std::string>& savestate_path,
+  void (*cpuThreadFunc)(Core::System& system, const std::optional<std::string>& savestate_path,
                         bool delete_savestate);
   if (std::holds_alternative<BootParameters::DFF>(boot->parameters))
     cpuThreadFunc = FifoPlayerThread;
