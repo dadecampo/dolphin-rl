@@ -22,6 +22,7 @@
 #include "Core/CoreTiming.h"
 #include "Core/DolphinAnalytics.h"
 #include "Core/System.h"
+#include "Core/API/Pipes/NamedPipeListener.h"
 
 // TODO: ugly
 #ifdef _WIN32
@@ -98,6 +99,20 @@ void VideoBackendBase::Video_OutputXFB(u32 xfb_addr, u32 fb_width, u32 fb_stride
     system.GetFifo().SyncGPU(Fifo::SyncGPUReason::Swap);
 
     const TimePoint presentation_time = system.GetCoreTiming().GetTargetHostTime(ticks);
+    if (g_named_pipe_listener->IsRunning())
+      {
+        while (true)
+        {
+          if (auto cmd = g_named_pipe_listener->GetNextCommand())
+          {
+            std::cout << "Ricevuto: " << *cmd << "\n";
+            // qui puoi reagire a comandi globali
+            break;
+          }
+          std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+      }
+    Core::SaveScreenShot();
     AsyncRequests::GetInstance()->PushEvent([=] {
       g_presenter->ViSwap(xfb_addr, fb_width, fb_stride, fb_height, ticks, presentation_time);
     });

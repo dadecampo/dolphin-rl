@@ -90,6 +90,7 @@
 #include "VideoCommon/PerformanceMetrics.h"
 #include "VideoCommon/VideoBackendBase.h"
 #include "VideoCommon/VideoEvents.h"
+#include "API/Pipes/NamedPipeListener.h"
 
 namespace Core
 {
@@ -567,6 +568,9 @@ static void EmuThread(Core::System& system, std::unique_ptr<BootParameters> boot
 
     g_video_backend->Shutdown();
   }};
+  
+  g_named_pipe_listener = std::make_unique<NamedPipeListener>("MyPipe");
+  g_named_pipe_listener->Start();
 
   if (cpu_info.HTT)
     Config::SetBaseOrCurrent(Config::MAIN_DSP_THREAD, cpu_info.num_cores > 4);
